@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Blog - Responsive UI (SPA)</title>
+  <style>
+    :root{
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --accent: linear-gradient(90deg,#7dd3fc,#60a5fa);
+      --accent-color: #3b82f6;
+      --glass: rgba(255,255,255,0.6);
+    }
+    *{box-sizing:border-box}
+    body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial; background:var(--bg); color:#0f172a; margin:0; -webkit-font-smoothing:antialiased}
+
+    /* layout */
+    .container{max-width:1100px;margin:28px auto;padding:0 16px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:46px;height:46px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+    nav{display:flex;gap:10px;align-items:center}
+    nav a{color:var(--muted);text-decoration:none;padding:8px 12px;border-radius:8px}
+    nav a.active, nav a:hover{background:var(--card);color:var(--accent-color);box-shadow:0 4px 12px rgba(59,130,246,0.12)}
+    .actions{display:flex;gap:8px}
+    button.btn{border:0;padding:10px 14px;border-radius:10px;background:var(--accent-color);color:#fff;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid #e6eefc;color:var(--accent-color)}
+
+    /* top hero */
+    .hero{display:flex;gap:18px;background:linear-gradient(180deg,rgba(99,102,241,0.06),transparent);padding:22px;border-radius:14px;align-items:center}
+    .hero-left{flex:1}
+    .hero h1{font-size:22px;margin-bottom:6px}
+    .hero p{color:var(--muted);margin-bottom:12px}
+
+    /* layout grid */
+    .layout{display:grid;grid-template-columns:1fr 320px;gap:20px;margin-top:18px}
+    .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(12,16,24,0.04)}
+
+    /* posts */
+    .posts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .post{display:flex;flex-direction:column;border-radius:10px;overflow:hidden;border:1px solid #eef2ff}
+    .post .thumb{height:160px;background-size:cover;background-position:center}
+    .post .body{padding:12px}
+    .post .meta{font-size:12px;color:var(--muted);margin-bottom:8px}
+    .post h3{margin:0 0 8px 0}
+    .post p{color:var(--muted);font-size:14px;margin:0}
+
+    /* sidebar */
+    .sidebar .search{display:flex;gap:8px;margin-bottom:12px}
+    .sidebar input{flex:1;padding:10px;border-radius:8px;border:1px solid #e6eefc}
+    .categories{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{background:#f1f5f9;padding:8px 10px;border-radius:999px;font-size:13px;color:#334155}
+
+    /* post view */
+    .post-view .banner{height:260px;background-size:cover;background-position:center;border-radius:10px;margin-bottom:14px}
+    .post-view h2{margin-bottom:6px}
+    .post-meta{color:var(--muted);font-size:13px;margin-bottom:18px}
+    .post-content{line-height:1.7;color:#102a43}
+
+    /* forms */
+    form .row{display:flex;gap:8px}
+    input, textarea, select{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eefc}
+    textarea{min-height:120px}
+
+    /* admin small */
+    .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+    /* footer */
+    footer{text-align:center;color:var(--muted);margin-top:30px;padding-bottom:40px}
+
+    /* responsive */
+    @media (max-width:900px){.layout{grid-template-columns:1fr} .posts-grid{grid-template-columns:1fr}}
+    @media (max-width:520px){header{flex-direction:column;align-items:flex-start} .hero{flex-direction:column;align-items:flex-start} .logo{width:40px;height:40px} .brand h3{font-size:16px}}
+
+    /* small helpers */
+    .muted{color:var(--muted)}
+    .small{font-size:13px}
+    .center{display:flex;align-items:center;justify-content:center}
+
+    /* nav mobile */
+    .mobile-nav{display:none}
+    @media (max-width:720px){nav{display:none}.mobile-nav{display:block}}
+
+    /* comment list */
+    .comment{border-top:1px solid #f1f5f9;padding:12px 0}
+    .comment .who{font-weight:600}
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <div class="brand">
+        <div class="logo">MB</div>
+        <div>
+          <h3 style="margin:0">MyBlog</h3>
+          <div class="muted small">Stories, tutorials & ideas</div>
+        </div>
+      </div>
+
+      <nav>
+        <a href="#/" data-link>Home</a>
+        <a href="#/about" data-link>About</a>
+        <a href="#/categories" data-link>Categories</a>
+        <a href="#/admin" data-link id="admin-nav">Admin</a>
+      </nav>
+
+      <div class="actions">
+        <button class="ghost" id="btn-login">Log in</button>
+        <button class="btn" id="btn-new-post">New Post</button>
+      </div>
+    </header>
+
+    <!-- main SPA container -->
+    <main id="app">
+      <!-- home view -->
+      <section id="home" class="view">
+        <div class="hero card">
+          <div class="hero-left">
+            <h1>Fresh articles every week</h1>
+            <p>Read long-form articles about web development, design, and life.</p>
+            <div class="small muted">Explore categories and the latest posts below</div>
+          </div>
+          <div class="center" style="min-width:220px">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='100' viewBox='0 0 140 100'%3E%3Crect width='140' height='100' rx='14' fill='%233b82f6'/%3E%3Ctext x='50%' y='50%' fill='white' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='20'%3EBLOG%3C/text%3E%3C/svg%3E" alt="hero" style="width:140px;border-radius:10px;box-shadow:0 6px 18px rgba(11,22,80,0.06);">
+          </div>
+        </div>
+
+        <div class="layout">
+          <div>
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <h4 style="margin:0">Latest posts</h4>
+                <div class="muted small" id="posts-count">0 posts</div>
+              </div>
+
+              <div class="posts-grid" id="posts-grid">
+                <!-- posts injected here -->
+              </div>
+            </div>
+
+            <div class="card" style="margin-top:14px">
+              <h4 style="margin:0 0 10px 0">Popular</h4>
+              <div id="popular-list"></div>
+            </div>
+          </div>
+
+          <aside class="sidebar">
+            <div class="card">
+              <div class="search">
+                <input id="search" placeholder="Search posts...">
+                <button class="btn" id="search-btn">Search</button>
+              </div>
+              <h5>Categories</h5>
+              <div class="categories" id="categories"></div>
+            </div>
+
+            <div class="card" style="margin-top:12px">
+              <h5>About the author</h5>
+              <p class="muted small">Hello! I'm the site owner. I write about coding, UX and the occasional travel story.</p>
+              <div style="margin-top:8px">
+                <button class="btn" id="follow">Follow</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- post detail view -->
+      <section id="post" class="view" style="display:none">
+        <div class="card post-view">
+          <div class="muted small" style="margin-bottom:8px"><a href="#/">← Back to home</a></div>
+          <div id="post-banner" class="banner"></div>
+          <h2 id="post-title"></h2>
+          <div class="post-meta" id="post-meta"></div>
+          <div class="post-content" id="post-content"></div>
+
+          <div style="margin-top:18px">
+            <h4>Comments</h4>
+            <div id="comments"></div>
+            <form id="comment-form" style="margin-top:12px">
+              <input id="comment-name" placeholder="Your name" required>
+              <textarea id="comment-text" placeholder="Write a comment..." required style="margin-top:8px"></textarea>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button class="btn" type="submit">Post comment</button>
+                <button type="button" class="ghost" id="cancel-comment">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- admin / dashboard view -->
+      <section id="admin" class="view" style="display:none">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h3>Admin Dashboard</h3>
+            <div>
+              <button class="ghost" id="btn-logout">Log out</button>
+            </div>
+          </div>
+
+          <div style="margin-bottom:12px">
+            <h4>Create / Edit Post</h4>
+            <form id="post-form">
+              <div class="row" style="margin-bottom:8px">
+                <input id="post-title-input" placeholder="Title" required>
+                <select id="post-category">
+                  <option>General</option>
+                  <option>Web Dev</option>
+                  <option>Design</option>
+                  <option>Travel</option>
+                </select>
+              </div>
+              <input id="post-image" placeholder="Cover image URL (optional)" style="margin-bottom:8px">
+              <textarea id="post-body" placeholder="Write markdown or HTML content" required></textarea>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button class="btn" type="submit">Save Post</button>
+                <button type="button" class="ghost" id="clear-post">Clear</button>
+              </div>
+            </form>
+          </div>
+
+          <div>
+            <h4>Manage posts</h4>
+            <div id="admin-posts"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- login modal (simple) -->
+      <div id="login-modal" style="display:none;position:fixed;inset:0;background:rgba(2,6,23,0.45);align-items:center;justify-content:center">
+        <div style="width:420px;max-width:94%;background:var(--card);padding:18px;border-radius:12px">
+          <h3 style="margin-top:0">Log in</h3>
+          <p class="muted small">Use any username. Admin user: <strong>admin</strong></p>
+          <form id="login-form">
+            <input id="login-user" placeholder="Username" required>
+            <input id="login-pass" placeholder="Password" type="password" style="margin-top:8px">
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button class="btn" type="submit">Sign in</button>
+              <button type="button" class="ghost" id="close-login">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </main>
+
+    <footer>
+      <div class="muted small">© MyBlog 2025 • Built with ❤️ • Responsive UI demo</div>
+    </footer>
+  </div>
+
+  <script>
+    /*************** Simple SPA + fake backend (localStorage) ***************/
+
+    // sample data
+    const SAMPLE_POSTS = [
+      {id:1,title:'Understanding Flexbox: A Practical Guide',category:'Web Dev',excerpt:'Layout made simple — learn flexbox with real examples.',image:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=60',body:'<p>Flexbox is a powerful layout system. It helps align items... (sample content)</p>',date:'2025-10-01',views:230,comments:[]},
+      {id:2,title:'Design Principles for Better UI',category:'Design',excerpt:'A short collection of principles to make your apps delightful.',image:'https://images.unsplash.com/photo-1526378721123-1b9b2b5a0f4a?auto=format&fit=crop&w=800&q=60',body:'<p>Design is more than colors. Think about hierarchy, spacing...</p>',date:'2025-09-15',views:402,comments:[]},
+      {id:3,title:'Packing Light: A Minimalist Travel Checklist',category:'Travel',excerpt:'Everything you need for a 7-day trip in a carry-on.',image:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=60',body:'<p>Traveling light makes life easier. Start with versatile clothes...</p>',date:'2025-08-20',views:98,comments:[]}
+    ];
+
+    // storage helpers
+    function savePosts(posts){localStorage.setItem('myblog_posts',JSON.stringify(posts))}
+    function loadPosts(){const raw=localStorage.getItem('myblog_posts'); if(!raw){savePosts(SAMPLE_POSTS); return SAMPLE_POSTS;} try{return JSON.parse(raw)}catch(e){return SAMPLE_POSTS}}
+
+    let POSTS = loadPosts();
+    let CURRENT_USER = localStorage.getItem('myblog_user') || null;
+
+    // routing
+    function navigate(){
+      const hash = location.hash || '#/';
+      document.querySelectorAll('.view').forEach(v=>v.style.display='none');
+      document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+
+      if(hash.startsWith('#/post/')){ const id = +hash.split('/')[2]; showPost(id); document.querySelector('nav a[href="#/"]').classList.add('active'); }
+      else if(hash==='#/admin'){ showAdmin(); document.querySelector('nav a[href="#/admin"]').classList.add('active'); }
+      else if(hash==='#/about'){ showAbout(); }
+      else{ showHome(); document.querySelector('nav a[href="#/"]').classList.add('active'); }
+    }
+
+    // render helpers
+    function short(text, n=110){return text.length>n?text.slice(0,n-1)+'…':text}
+
+    function renderPostsGrid(filter=''){
+      const grid = document.getElementById('posts-grid'); grid.innerHTML='';
+      const filtered = POSTS.filter(p => filter==='' || p.title.toLowerCase().includes(filter.toLowerCase()) || p.category.toLowerCase()===filter.toLowerCase());
+      document.getElementById('posts-count').innerText = filtered.length + ' posts';
+      filtered.sort((a,b)=> new Date(b.date)-new Date(a.date));
+      filtered.forEach(p=>{
+        const el = document.createElement('article'); el.className='post';
+        el.innerHTML = `
+          <div class="thumb" style="background-image:url('${p.image || placeholderImg()}')"></div>
+          <div class="body">
+            <div class="meta">${p.category} • ${p.date}</div>
+            <h3><a href="#/post/${p.id}" data-link>${p.title}</a></h3>
+            <p>${short(p.excerpt || stripHtml(p.body),120)}</p>
+          </div>`;
+        grid.appendChild(el);
+      });
+    }
+
+    function renderCategories(){
+      const set = new Set(POSTS.map(p=>p.category));
+      const container = document.getElementById('categories'); container.innerHTML='';
+      ['All',...set].forEach(cat=>{
+        const c = document.createElement('button'); c.className='chip'; c.innerText=cat; c.onclick=()=>{ if(cat==='All') renderPostsGrid(''); else renderPostsGrid(cat); }
+        container.appendChild(c);
+      })
+    }
+
+    function renderPopular(){
+      const list = document.getElementById('popular-list'); list.innerHTML='';
+      POSTS.slice().sort((a,b)=>b.views-a.views).slice(0,3).forEach(p=>{
+        const row = document.createElement('div'); row.style.padding='8px 0'; row.innerHTML = `<a href="#/post/${p.id}">${p.title}</a><div class="muted small">${p.views} views</div>`;
+        list.appendChild(row);
+      })
+    }
+
+    function showHome(){document.getElementById('home').style.display='block'; renderPostsGrid(); renderCategories(); renderPopular();}
+
+    function showPost(id){
+      const p = POSTS.find(x=>x.id===id); if(!p){location.hash='#/';return}
+      document.getElementById('post').style.display='block';
+      document.getElementById('post-banner').style.backgroundImage = `url('${p.image || placeholderImg()}')`;
+      document.getElementById('post-title').innerText = p.title;
+      document.getElementById('post-meta').innerText = `${p.category} • ${p.date} • ${p.views || 0} views`;
+      document.getElementById('post-content').innerHTML = p.body;
+      renderComments(p);
+      p.views = (p.views||0)+1; savePosts(POSTS);
+    }
+
+    function showAdmin(){
+      if(!CURRENT_USER){ alert('You must be logged in to access admin.'); location.hash='#/'; return }
+      document.getElementById('admin').style.display='block'; renderAdminPosts();
+    }
+
+    function showAbout(){ alert('Demo blog UI - build features and connect to a backend to make it real.'); location.hash='#/'; }
+
+    // post view comments
+    function renderComments(post){ const ctn = document.getElementById('comments'); ctn.innerHTML=''; (post.comments||[]).forEach(cm=>{ const el = document.createElement('div'); el.className='comment'; el.innerHTML = `<div class="who">${escapeHtml(cm.name)}</div><div class="small muted">${cm.date}</div><div style="margin-top:6px">${escapeHtml(cm.text)}</div>`; ctn.appendChild(el); }); }
+
+    // admin
+    function renderAdminPosts(){ const ctn = document.getElementById('admin-posts'); ctn.innerHTML=''; POSTS.slice().reverse().forEach(p=>{ const r = document.createElement('div'); r.style.borderTop='1px solid #f1f5f9'; r.style.padding='10px 0'; r.innerHTML = `<strong>${p.title}</strong> <div class="muted small">${p.date} • ${p.category}</div><div style="margin-top:8px"><button class="ghost" data-edit="${p.id}">Edit</button> <button class="btn" data-delete="${p.id}">Delete</button></div>`; ctn.appendChild(r); }); }
+
+    // utilities
+    function placeholderImg(){ return 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=60' }
+    function stripHtml(html){ return html.replace(/<[^>]+>/g, '') }
+    function escapeHtml(s){ return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+    // events
+    document.getElementById('search-btn').addEventListener('click',()=>{ const q=document.getElementById('search').value; renderPostsGrid(q); })
+    document.getElementById('btn-login').addEventListener('click',()=>{document.getElementById('login-modal').style.display='flex';})
+    document.getElementById('close-login').addEventListener('click',()=>{document.getElementById('login-modal').style.display='none'})
+
+    document.getElementById('login-form').addEventListener('submit',e=>{ e.preventDefault(); const u=document.getElementById('login-user').value.trim(); const p=document.getElementById('login-pass').value; if(!u){return alert('enter username')} CURRENT_USER = u; localStorage.setItem('myblog_user',CURRENT_USER); document.getElementById('login-modal').style.display='none'; alert('Signed in as '+CURRENT_USER); })
+
+    document.getElementById('btn-new-post').addEventListener('click',()=>{ if(!CURRENT_USER){ alert('Please log in to create a post'); return } location.hash='#/admin'; })
+
+    // post form save
+    document.getElementById('post-form').addEventListener('submit',e=>{ e.preventDefault(); const title=document.getElementById('post-title-input').value.trim(); const cat=document.getElementById('post-category').value; const image=document.getElementById('post-image').value.trim(); const body=document.getElementById('post-body').value.trim(); if(!title||!body){return alert('title & body required')} const id = Date.now(); const newPost={id,title,category:cat,image,body:body,date:(new Date()).toISOString().slice(0,10),views:0,comments:[]}; POSTS.push(newPost); savePosts(POSTS); renderAdminPosts(); alert('Post saved'); document.getElementById('post-form').reset(); renderPostsGrid(); renderCategories(); renderPopular(); })
+
+    document.getElementById('clear-post').addEventListener('click',()=>document.getElementById('post-form').reset())
+
+    // admin posts actions (delegate)
+    document.getElementById('admin-posts').addEventListener('click',e=>{
+      const edit = e.target.getAttribute('data-edit'); const del = e.target.getAttribute('data-delete');
+      if(edit){ const p = POSTS.find(x=>x.id==edit); if(!p) return; document.getElementById('post-title-input').value=p.title; document.getElementById('post-category').value=p.category; document.getElementById('post-image').value=p.image; document.getElementById('post-body').value=p.body; window.scrollTo({top:0,behavior:'smooth'}); }
+      if(del){ if(!confirm('Delete this post?')) return; POSTS = POSTS.filter(x=>x.id!=del); savePosts(POSTS); renderAdminPosts(); renderPostsGrid(); renderCategories(); }
+    })
+
+    // comment submit
+    document.getElementById('comment-form').addEventListener('submit',e=>{ e.preventDefault(); const name=document.getElementById('comment-name').value.trim(); const text=document.getElementById('comment-text').value.trim(); if(!name||!text) return alert('enter name and comment'); const id = +location.hash.split('/')[2]; const post = POSTS.find(x=>x.id==id); post.comments = post.comments || []; post.comments.push({name,text,date:(new Date()).toLocaleString()}); savePosts(POSTS); renderComments(post); document.getElementById('comment-form').reset(); })
+    document.getElementById('cancel-comment').addEventListener('click',()=>document.getElementById('comment-form').reset())
+
+    // logout
+    document.getElementById('btn-logout').addEventListener('click',()=>{ localStorage.removeItem('myblog_user'); CURRENT_USER=null; alert('Logged out'); location.hash='#/'; })
+
+    // attach simple link handler
+    document.body.addEventListener('click',e=>{ if(e.target.matches('[data-link]')){ e.preventDefault(); const href = e.target.getAttribute('href'); location.hash = href.replace('#',''); } })
+
+    // init
+    window.addEventListener('hashchange',navigate); navigate();
+  </script>
+</body>
+</html>
